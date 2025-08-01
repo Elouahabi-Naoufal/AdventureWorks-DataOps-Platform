@@ -1,0 +1,16 @@
+CONTAINER ID   IMAGE                  COMMAND                  CREATED       STATUS                 PORTS                                         NAMES
+6b0e7151752b   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-worker-1
+f5d397a10c7e   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-dag-processor-1
+cd01aac6e85c   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-scheduler-1
+bf80ae7016b0   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp   airflow-final-airflow-apiserver-1
+cc50e4998455   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-triggerer-1
+7320e5c0cf26   postgres:17            "docker-entrypoint.s…"   3 hours ago   Up 3 hours (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   airflow-final-postgres-1
+ad6ff0139960   redis:7.2-bookworm     "docker-entrypoint.s…"   3 hours ago   Up 3 hours (healthy)   6379/tcp                                      airflow-final-redis-1
+CONTAINER ID   IMAGE                  COMMAND                  CREATED       STATUS                 PORTS                                         NAMES
+3c1bef543e4d   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-worker-1
+78e24b2f89ac   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp   airflow-final-airflow-apiserver-1
+4af85caec192   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-dag-processor-1
+bd91a31c495b   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-scheduler-1
+047f9f47b9a6   apache/airflow:3.0.2   "/usr/bin/dumb-init …"   3 hours ago   Up 3 hours (healthy)   8080/tcp                                      airflow-final-airflow-triggerer-1
+7c3010cee49a   postgres:17            "docker-entrypoint.s…"   3 hours ago   Up 3 hours (healthy)   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   airflow-final-postgres-1
+c06ee97772d4   redis:7.2-bookworm     "docker-entrypoint.s…"   3 hours ago   Up 3 hours (healthy)   6379/tcp                                      airflow-final-redis-1

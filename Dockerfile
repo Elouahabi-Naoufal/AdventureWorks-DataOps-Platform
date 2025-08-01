@@ -1,0 +1,3 @@
+COPY dags/ /opt/airflow/dags/
+
+
