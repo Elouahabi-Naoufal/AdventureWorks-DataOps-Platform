@@ -66,4 +66,4 @@ dbt/dbt_packages/
 !Dockerfile
 !requirements.txt
 !packages.txt
-snowflakepass.txt
+!snowflakepass.txt
