@@ -33,11 +33,11 @@ Je vous écris pour faire le point sur mon projet **AdventureWorks DataOps Platf
 - Environnement Docker opérationnel
 - Connexions et authentification configurées
 
-### Phase 2 - Développement DAGs (0% - En cours)
+### Phase 2 - Développement DAGs (13% - En cours)
 
 **Module Ventes (5 DAGs)** :
-1. `daily_sales_etl` - ETL quotidien ventes et calcul CA
-2. `sales_territory_analysis` - Analyse performance par territoire
+1. `daily_sales_etl` - ETL quotidien ventes et calcul CA ✅ **TERMINÉ**
+2. `sales_territory_analysis` - Analyse performance par territoire ✅ **TERMINÉ**
 3. `sales_person_performance` - Performance vendeurs
 4. `currency_exchange_rates` - Gestion taux de change
 5. `sales_forecasting` - Prévisions ventes simples
@@ -65,9 +65,9 @@ Je vous écris pour faire le point sur mon projet **AdventureWorks DataOps Platf
 - Documentation utilisateur
 - Tests de validation
 
-### Progression Globale : 20%
+### Progression Globale : 23%
 - **Infrastructure** : 100% (Terminé)
-- **Développement** : 0% (15 DAGs à créer)
+- **Développement** : 13% (2/15 DAGs terminés)
 - **Finalisation** : 0% (Documentation et tests)
 
 ## Tables Principales Utilisées
@@ -97,3 +97,30 @@ Je reste à votre disposition pour discuter de ce projet.
 
 Cordialement,
 [Votre nom]
+
+
+
+Module Ventes (5 DAGs) :
+1. daily_sales_etl - ETL quotidien ventes et calcul CA ✅ **TERMINÉ**
+2. sales_territory_analysis - Analyse performance par territoire ✅ **TERMINÉ**
+3. sales_person_performance - Performance vendeurs
+4. currency_exchange_rates - Gestion taux de change
+5. sales_forecasting - Prévisions ventes simples
+
+Module Clients (3 DAGs) :
+6. customer_analytics - CLV et segmentation clients
+7. customer_retention - Analyse rétention clients
+8. customer_demographics - Analyse démographique
+
+Module Production (3 DAGs) :
+9. inventory_management - Monitoring stocks avec alertes
+10. product_performance - Analyse performance produits
+11. production_costs - Analyse coûts production
+
+Module Finance (2 DAGs) :
+12. financial_reporting - Rapports mensuels profits
+13. credit_card_analysis - Analyse moyens paiement
+
+Module Qualité (2 DAGs) :
+14. data_quality_control - Validation qualité données
+15. marketing_campaigns - Analyse ROI campagnes

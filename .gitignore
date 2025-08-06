@@ -1,68 +1,47 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.so
-.pytest_cache/
-*.egg-info/
-dist/
-build/
-
-# Virtual Environment
-env/
-venv/
-.venv/
-ENV/
-
 # Airflow
 logs/
 airflow.db
-airflow.cfg.bak
+airflow.cfg
 webserver_config.py
 standalone_admin_password.txt
-airflow-webserver.pid
-airflow-scheduler.pid
 
-# Data & Temp
-data/
-*.log
-*.tmp
-*.temp
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
-*.bak
+
+# Environment
+.env
+.env.local
+.env.production
 
 # Docker
 .dockerignore
 
-# DBT (if using)
-dbt/logs/
-dbt/target/
-dbt/dbt_packages/
+# Logs
+*.log
 
-# Keep these directories and files
-!dags/
-!plugins/
-!tests/
-!config/
-!*.md
-!*.txt
-!*.sql
-!*.yaml
-!*.yml
-!*.json
-!docker-compose.yaml
-!Dockerfile
-!requirements.txt
-!packages.txt
+# Database
+*.db
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
