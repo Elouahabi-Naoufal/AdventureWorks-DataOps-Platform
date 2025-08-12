@@ -246,7 +246,191 @@ def customer_retention():
             SELECT 
                 *,
                 -- Churn risk score based on multiple factors (0-100)
-                LEAST(100, GREATEST(0,
+                LEAST(100, GREATEST(0, 
+                    (days_since_last_order * 0.3) + 
+                    (CASE WHEN avg_days_between_orders IS NULL THEN 30 ELSE GREATEST(0, 60 - avg_days_between_orders) END * 0.4) +
+                    (CASE WHEN total_orders = 1 THEN 30 ELSE GREATEST(0, 20 - total_orders * 2) END * 0.3)
+                )) as churn_risk_score
+            FROM customer_behavior
+        )
+        SELECT 
+            DATE_TRUNC('WEEK', CURRENT_DATE) as analysis_date,
+            CustomerID,
+            days_since_last_order,
+            total_orders,
+            avg_days_between_orders,
+            total_spent,
+            avg_order_value,
+            churn_risk_score,
+            CASE 
+                WHEN churn_risk_score >= 80 THEN 'HIGH_RISK'
+                WHEN churn_risk_score >= 60 THEN 'MEDIUM_RISK'
+                WHEN churn_risk_score >= 40 THEN 'LOW_RISK'
+                ELSE 'ACTIVE'
+            END as churn_risk_category,
+            CASE 
+                WHEN churn_risk_score >= 80 THEN CURRENT_DATE + 7
+                WHEN churn_risk_score >= 60 THEN CURRENT_DATE + 30
+                WHEN churn_risk_score >= 40 THEN CURRENT_DATE + 90
+                ELSE CURRENT_DATE + 365
+            END as predicted_churn_date,
+            ROUND(100 - churn_risk_score, 2) as retention_probability
+        FROM churn_scoring;
+        """,
+    )
+    
+    # Task 6: Analyze customer lifecycle stages
+    analyze_lifecycle_stages = SQLExecuteQueryOperator(
+        task_id='analyze_lifecycle_stages',
+        conn_id='snowflake_conn',
+        sql="""
+        USE ROLE ACCOUNTADMIN;
+        USE DATABASE dbt_db;
+        USE SCHEMA dbt_warehouse;
+        
+        INSERT INTO customer_lifecycle_stages (
+            analysis_date,
+            customer_id,
+            first_order_date,
+            last_order_date,
+            customer_age_days,
+            lifecycle_stage,
+            stage_description,
+            recommended_action
+        )
+        WITH customer_lifecycle AS (
+            SELECT 
+                CustomerID,
+                MIN(OrderDate) as first_order_date,
+                MAX(OrderDate) as last_order_date,
+                COUNT(DISTINCT SalesOrderID) as total_orders,
+                DATEDIFF(day, MIN(OrderDate), CURRENT_DATE) as customer_age_days,
+                DATEDIFF(day, MAX(OrderDate), CURRENT_DATE) as days_since_last_order
+            FROM dbt_schema.SALES_SALESORDERHEADER
+            WHERE Status = 5 AND CustomerID IS NOT NULL
+            GROUP BY CustomerID
+        )
+        SELECT 
+            DATE_TRUNC('WEEK', CURRENT_DATE) as analysis_date,
+            CustomerID,
+            first_order_date,
+            last_order_date,
+            customer_age_days,
+            CASE 
+                WHEN customer_age_days <= 30 AND total_orders = 1 THEN 'NEW_CUSTOMER'
+                WHEN customer_age_days <= 90 AND total_orders >= 2 THEN 'DEVELOPING'
+                WHEN days_since_last_order <= 30 AND total_orders >= 3 THEN 'ACTIVE'
+                WHEN days_since_last_order <= 90 AND total_orders >= 5 THEN 'LOYAL'
+                WHEN days_since_last_order <= 180 THEN 'AT_RISK'
+                WHEN days_since_last_order <= 365 THEN 'DORMANT'
+                ELSE 'LOST'
+            END as lifecycle_stage,
+            CASE 
+                WHEN customer_age_days <= 30 AND total_orders = 1 THEN 'Recently acquired customer'
+                WHEN customer_age_days <= 90 AND total_orders >= 2 THEN 'Customer showing repeat purchase behavior'
+                WHEN days_since_last_order <= 30 AND total_orders >= 3 THEN 'Regularly active customer'
+                WHEN days_since_last_order <= 90 AND total_orders >= 5 THEN 'High-value loyal customer'
+                WHEN days_since_last_order <= 180 THEN 'Customer at risk of churning'
+                WHEN days_since_last_order <= 365 THEN 'Inactive customer needing reactivation'
+                ELSE 'Lost customer requiring win-back campaign'
+            END as stage_description,
+            CASE 
+                WHEN customer_age_days <= 30 AND total_orders = 1 THEN 'Welcome series, onboarding support'
+                WHEN customer_age_days <= 90 AND total_orders >= 2 THEN 'Encourage repeat purchases, loyalty program'
+                WHEN days_since_last_order <= 30 AND total_orders >= 3 THEN 'Maintain engagement, cross-sell opportunities'
+                WHEN days_since_last_order <= 90 AND total_orders >= 5 THEN 'VIP treatment, exclusive offers'
+                WHEN days_since_last_order <= 180 THEN 'Re-engagement campaign, special discounts'
+                WHEN days_since_last_order <= 365 THEN 'Reactivation campaign, survey feedback'
+                ELSE 'Win-back campaign, significant incentives'
+            END as recommended_action
+        FROM customer_lifecycle;
+        """,
+    )
+    
+    # Task 7: Validate results
+    @task(task_id='validate_results')
+    def validate_results(data_status):
+        """Validate retention analysis results"""
+        if data_status == 'no_data':
+            logging.info("Skipping validation - insufficient data")
+            return 'success'
+        
+        from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+        
+        hook = SnowflakeHook(snowflake_conn_id='snowflake_conn')
+        
+        # Validate cohort analysis
+        cohort_sql = """
+        USE ROLE ACCOUNTADMIN;
+        USE DATABASE dbt_db;
+        USE SCHEMA dbt_warehouse;
+        
+        SELECT 
+            COUNT(DISTINCT cohort_month) as cohorts,
+            AVG(retention_rate) as avg_retention_rate
+        FROM customer_cohort_analysis
+        WHERE analysis_date = DATE_TRUNC('WEEK', CURRENT_DATE);
+        """
+        
+        cohort_result = hook.get_first(cohort_sql)
+        cohorts = cohort_result[0] if cohort_result else 0
+        avg_retention = cohort_result[1] if cohort_result else 0
+        
+        # Validate churn prediction
+        churn_sql = """
+        SELECT 
+            COUNT(*) as customers_analyzed,
+            COUNT(CASE WHEN churn_risk_category = 'HIGH_RISK' THEN 1 END) as high_risk_customers
+        FROM customer_churn_prediction
+        WHERE analysis_date = DATE_TRUNC('WEEK', CURRENT_DATE);
+        """
+        
+        churn_result = hook.get_first(churn_sql)
+        customers_analyzed = churn_result[0] if churn_result else 0
+        high_risk = churn_result[1] if churn_result else 0
+        
+        logging.info(f"Cohort Analysis: {cohorts} cohorts, avg retention: {avg_retention}%")
+        logging.info(f"Churn Analysis: {customers_analyzed} customers, {high_risk} high-risk")
+        
+        return 'success'
+    
+    # Task 8: Finalize
+    finalize = SQLExecuteQueryOperator(
+        task_id='finalize',
+        conn_id='snowflake_conn',
+        sql="""
+        USE ROLE ACCOUNTADMIN;
+        USE DATABASE dbt_db;
+        USE SCHEMA dbt_warehouse;
+        
+        CREATE TABLE IF NOT EXISTS etl_log (
+            execution_date DATE,
+            dag_id VARCHAR(100),
+            status VARCHAR(20),
+            records_processed INTEGER,
+            created_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+        );
+        
+        INSERT INTO etl_log (execution_date, dag_id, status, records_processed)
+        SELECT 
+            CURRENT_DATE,
+            'customer_retention',
+            'SUCCESS',
+            COALESCE(COUNT(*), 0)
+        FROM customer_churn_prediction
+        WHERE analysis_date = DATE_TRUNC('WEEK', CURRENT_DATE);
+        """,
+    )
+    
+    # Define dependencies
+    data_check = check_data_exists()
+    validation = validate_results(data_check)
+    
+    create_target_tables >> data_check >> cleanup_data
+    cleanup_data >> [perform_cohort_analysis, calculate_churn_prediction, analyze_lifecycle_stages]
+    [perform_cohort_analysis, calculate_churn_prediction, analyze_lifecycle_stages] >> validation >> finalize
+
+customer_retention()  LEAST(100, GREATEST(0,
                     (days_since_last_order * 0.4) +  -- Recency weight
                     (CASE WHEN total_orders = 1 THEN 30 ELSE 0 END) +  -- One-time buyer penalty
                     (CASE WHEN avg_days_between_orders > 90 THEN 20 ELSE 0 END) +  -- Infrequent buyer penalty
