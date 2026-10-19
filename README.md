@@ -15,7 +15,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
@@ -476,10 +475,7 @@ delete-before-insert step for the period being written.
 <!-- LICENSE -->
 ## License
 
-No license file is currently bundled with this repository. Until one is added, the default
-GitHub terms apply and the repository should be treated as unlicensed — do not redistribute it
-without asking. If you intend to build on these DAGs, open an issue or a pull request adding a
-license.
+This project is not licensed — all rights reserved.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -523,8 +519,6 @@ Project Link: [https://github.com/Elouahabi-Naoufal/AdventureWorks-DataOps-Platf
 [stars-url]: https://github.com/Elouahabi-Naoufal/AdventureWorks-DataOps-Platform/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Elouahabi-Naoufal/AdventureWorks-DataOps-Platform.svg?style=for-the-badge
 [issues-url]: https://github.com/Elouahabi-Naoufal/AdventureWorks-DataOps-Platform/issues
-[license-shield]: https://img.shields.io/github/license/Elouahabi-Naoufal/AdventureWorks-DataOps-Platform.svg?style=for-the-badge
-[license-url]: https://github.com/Elouahabi-Naoufal/AdventureWorks-DataOps-Platform
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/elouahabi-naoufal/
 [Apache Airflow]: https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=apacheairflow&logoColor=white
